@@ -8,14 +8,19 @@ app = Flask(__name__)
 # local users storage
 users = {}
 
-#test
+# table in db
+dataBase = 'Devops.users'
+dbColumns = 'user_name,user_id,creation_date'
+
+
 # supported methods
 @app.route('/users/<user_id>', methods=['GET', 'POST', 'DELETE', 'PUT'])
 def user(user_id):
     if request.method == 'GET':
+
         try:
             # Define the query with placeholders for the variables
-            sql = "SELECT * FROM DevOps.users WHERE  user_id = %s"
+            sql = f"SELECT * FROM {dataBase} WHERE  user_id = %s"
 
             # Execute the query with the values
             cursor.execute(sql, user_id)
@@ -38,7 +43,7 @@ def user(user_id):
         users[user_id] = user_name
 
         # Define the query with placeholders for the variables
-        sql = "INSERT INTO DevOps.users  (user_name,user_id,creation_date) VALUES(%s,%s,%s)"
+        sql = f"INSERT INTO {dataBase}  ({dbColumns}) VALUES(%s,%s,%s)"
 
         # Execute the query with the values
         values = (user_name, user_id, date.today())
@@ -53,49 +58,54 @@ def user(user_id):
 
     elif request.method == 'DELETE':
 
-        # getting the json data payload from request
-        request_data = request.json
+        try:
+            # getting the json data payload from request
+            request_data = request.json
 
-        # treating request_data as a dictionary to get a specific value from key
-        user_name = request_data.get('user_name')
-        users[user_id] = user_name
+            # treating request_data as a dictionary to get a specific value from key
+            user_name = request_data.get('user_name')
+            users[user_id] = user_name
 
-        # Define the query with placeholders for the variables
-        sql = "DELETE FROM DevOps.users WHERE user_id = %s;"
+            # Define the query with placeholders for the variables
+            sql = f"DELETE FROM {dataBase} WHERE user_id = %s;"
 
-        # Execute the query with the values
-        values = (user_id,)
+            # Execute the query with the values
+            values = (user_id,)
 
-        # Execute the query with the values
-        cursor.execute(sql, values)
+            # Execute the query with the values
+            cursor.execute(sql, values)
 
-        # Close the connection and cursor
-        cursor.close()
-        conn.close()
-        return {'user id': user_id, 'user_deleted': user_name, 'status': 'ok'}, 200  # status code
+            # Close the connection and cursor
+            cursor.close()
+            conn.close()
+            return {'user id': user_id, 'user_deleted': user_name, 'status': 'ok'}, 200  # status code
+
+        except:
+            return {'status': "error", 'reason': 'no such id'}, 500  # status code
 
     elif request.method == 'PUT':
 
-        # getting the json data payload from request
-        request_data = request.json
+        try:
+            # getting the json data payload from request
+            request_data = request.json
 
-        # treating request_data as a dictionary to get a specific value from key
-        user_name = request_data.get('user_name')
-        users[user_id] = user_name
+            # treating request_data as a dictionary to get a specific value from key
+            user_name = request_data.get('user_name')
+            users[user_id] = user_name
 
-        # Define the query with placeholders for the variables
-        sql = "INSERT INTO DevOps.users  (user_name,user_id,creation_date) VALUES(%s,%s,%s)"
+            # Define the query with placeholders for the variables
+            sql = f"UPDATE {dataBase} SET user_name = {user_name} WHERE user_id  = {user_id}"
 
-        # Execute the query with the values
-        values = (user_name, user_id, date.today())
+            # Execute the query
+            cursor.execute(sql)
 
-        # Execute the query with the values
-        cursor.execute(sql, values)
+            # Close the connection and cursor
+            cursor.close()
+            conn.close()
+            return {'user_updated': user_name, 'status': 'ok'}, 200  # status code
 
-        # Close the connection and cursor
-        cursor.close()
-        conn.close()
-        return {'user id': user_id, 'user_added': user_name, 'status': 'ok'}, 200  # status code
+        except:
+            return {'status': "error", 'reason': 'no such user id'}, 500  # status code
 
 
 # todo elif for put and delete

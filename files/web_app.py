@@ -5,6 +5,7 @@ from datetime import date
 
 app = Flask(__name__)
 
+
 # supported methods
 @app.route('/users/get_user_data/<user_id>', methods=['GET', 'POST', 'DELETE', 'PUT'])
 def get_user_name(user_id):
