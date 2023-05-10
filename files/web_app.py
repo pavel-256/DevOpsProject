@@ -21,8 +21,6 @@ def get_user_name(user_id):
             result = cursor.fetchall()
 
             user_name = result[0][1]
-            cursor.close()
-            conn.close()
 
             return "<H1 id='user'>" + user_name + "</H1>"
         except:
@@ -31,4 +29,4 @@ def get_user_name(user_id):
 
 # todo elif for put and delete
 
-app.run(host='127.0.0.1', debug=True, port=5000)
+app.run(host='127.0.0.1', debug=True, port=5001)

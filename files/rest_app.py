@@ -1,6 +1,5 @@
 from flask import Flask, request
 from files.db_connector import cursor
-from files.db_connector import conn
 from datetime import date
 
 app = Flask(__name__)
@@ -27,34 +26,35 @@ def user(user_id):
 
             # Fetch the result(s) of the query
             result = cursor.fetchall()
-            cursor.close()
-            conn.close()
+
             return {'user id': user_id, 'user name': result[0][1], 'status': 'ok'}, 200
         except:
+
             return {'reason': 'no such id', 'status': 'error'}, 400
 
     elif request.method == 'POST':
 
-        # getting the json data payload from request
-        request_data = request.json
+        try:
+            # getting the json data payload from request
+            request_data = request.json
 
-        # treating request_data as a dictionary to get a specific value from key
-        user_name = request_data.get('user_name')
-        users[user_id] = user_name
+            # treating request_data as a dictionary to get a specific value from key
+            user_name = request_data.get('user_name')
+            users[user_id] = user_name
 
-        # Define the query with placeholders for the variables
-        sql = f"INSERT INTO {dataBase}  ({dbColumns}) VALUES(%s,%s,%s)"
+            # Define the query with placeholders for the variables
+            sql = f"INSERT INTO {dataBase}  ({dbColumns}) VALUES(%s,%s,%s)"
 
-        # Execute the query with the values
-        values = (user_name, user_id, date.today())
+            # Execute the query with the values
+            values = (user_name, user_id, date.today())
 
-        # Execute the query with the values
-        cursor.execute(sql, values)
+            # Execute the query with the values
+            cursor.execute(sql, values)
 
-        # Close the connection and cursor
-        cursor.close()
-        conn.close()
-        return {'user id': user_id, 'user_added': user_name, 'status': 'ok'}, 200  # status code
+            return {'user id': user_id, 'user_added': user_name, 'status': 'ok'}, 200  # status code
+
+        except:
+            return {'status': "error", 'reason': 'id already exist'}, 500  # status code
 
     elif request.method == 'DELETE':
 
@@ -76,8 +76,7 @@ def user(user_id):
             cursor.execute(sql, values)
 
             # Close the connection and cursor
-            cursor.close()
-            conn.close()
+
             return {'user id': user_id, 'user_deleted': user_name, 'status': 'ok'}, 200  # status code
 
         except:
@@ -99,9 +98,6 @@ def user(user_id):
             # Execute the query
             cursor.execute(sql)
 
-            # Close the connection and cursor
-            cursor.close()
-            conn.close()
             return {'user_updated': user_name, 'status': 'ok'}, 200  # status code
 
         except:
