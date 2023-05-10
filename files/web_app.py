@@ -1,7 +1,6 @@
 from flask import Flask, request
 from files.db_connector import cursor
-from files.db_connector import conn
-from datetime import date
+
 
 app = Flask(__name__)
 
