@@ -1,56 +1,28 @@
 from flask import Flask, request
-from files.db_connector import cursor
-from datetime import date
-
-app = Flask(__name__)
+from files.db_connector import get_request, post_request, delete_request, put_request
 
 # local users storage
 users = {}
 
-# table in db
-dataBase = 'Devops.users'
-dbColumns = 'user_name,user_id,creation_date'
+app = Flask(__name__)
 
 
 # supported methods
 @app.route('/users/<user_id>', methods=['GET', 'POST', 'DELETE', 'PUT'])
 def user(user_id):
     if request.method == 'GET':
-
         try:
-            # Define the query with placeholders for the variables
-            sql = f"SELECT * FROM {dataBase} WHERE  user_id = %s"
-
-            # Execute the query with the values
-            cursor.execute(sql, user_id)
-
-            # Fetch the result(s) of the query
-            result = cursor.fetchall()
-
+            # Get username from request
+            result = get_request(user_id)
             return {'user id': user_id, 'user name': result[0][1], 'status': 'ok'}, 200
         except:
-
             return {'reason': 'no such id', 'status': 'error'}, 400
 
     elif request.method == 'POST':
 
         try:
-            # getting the json data payload from request
-            request_data = request.json
-
-            # treating request_data as a dictionary to get a specific value from key
-            user_name = request_data.get('user_name')
-            users[user_id] = user_name
-
-            # Define the query with placeholders for the variables
-            sql = f"INSERT INTO {dataBase}  ({dbColumns}) VALUES(%s,%s,%s)"
-
-            # Execute the query with the values
-            values = (user_name, user_id, date.today())
-
-            # Execute the query with the values
-            cursor.execute(sql, values)
-
+            # Get username from request
+            user_name = post_request(user_id)
             return {'user id': user_id, 'user_added': user_name, 'status': 'ok'}, 200  # status code
 
         except:
@@ -59,24 +31,8 @@ def user(user_id):
     elif request.method == 'DELETE':
 
         try:
-            # getting the json data payload from request
-            request_data = request.json
-
-            # treating request_data as a dictionary to get a specific value from key
-            user_name = request_data.get('user_name')
-            users[user_id] = user_name
-
-            # Define the query with placeholders for the variables
-            sql = f"DELETE FROM {dataBase} WHERE user_id = %s;"
-
-            # Execute the query with the values
-            values = (user_id,)
-
-            # Execute the query with the values
-            cursor.execute(sql, values)
-
-            # Close the connection and cursor
-
+            # Get username form request
+            user_name = delete_request(user_id)
             return {'user id': user_id, 'user_deleted': user_name, 'status': 'ok'}, 200  # status code
 
         except:
@@ -85,19 +41,7 @@ def user(user_id):
     elif request.method == 'PUT':
 
         try:
-            # getting the json data payload from request
-            request_data = request.json
-
-            # treating request_data as a dictionary to get a specific value from key
-            user_name = request_data.get('user_name')
-            users[user_id] = user_name
-
-            # Define the query with placeholders for the variables
-            sql = f"UPDATE {dataBase} SET user_name = {user_name} WHERE user_id  = {user_id}"
-
-            # Execute the query
-            cursor.execute(sql)
-
+            user_name = put_request(user_id)
             return {'user_updated': user_name, 'status': 'ok'}, 200  # status code
 
         except:
