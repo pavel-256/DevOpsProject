@@ -13,7 +13,7 @@ pipeline {
             steps {
                 script {
                     if (checkOs() == 'Windows') {
-                        bat 'python 1.py'
+                        bat print('ok')'
                     } else {
                         sh 'python 1.py'
                     }
