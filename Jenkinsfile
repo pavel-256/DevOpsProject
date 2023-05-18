@@ -11,8 +11,9 @@ pipeline {
         
         stage('Run Backend') {
             steps {
-                sh 'python rest_app.py'
-            }
+bat 'start /min python rest_app.py'
+}
+      
         }
         
         stage('Run Frontend') {
