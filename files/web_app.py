@@ -1,6 +1,7 @@
 from flask import Flask, request
 from files.db_connector import cursor
-
+import os
+import signal
 
 app = Flask(__name__)
 
@@ -24,6 +25,15 @@ def get_user_name(user_id):
             return "<H1 id='user'>" + user_name + "</H1>"
         except:
             return "<H1 id='user'>" + "no such user " + user_id + "</H1>"
+
+
+@app.route('/stop_server')
+def stop_server():
+    try:
+        os.kill(os.getpid(), signal.CTRL_C_EVENT)
+        return 'Server stopped'
+    except:
+        return 'Server failed to stop'
 
 
 # todo elif for put and delete

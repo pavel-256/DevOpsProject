@@ -1,5 +1,7 @@
 from flask import Flask, request
 from files.db_connector import get_request, post_request, delete_request, put_request
+import os
+import signal
 
 # local users storage
 users = {}
@@ -15,6 +17,7 @@ def user(user_id):
             # Get username from request
             result = get_request(user_id)
             return {'user id': user_id, 'user name': result[0][1], 'status': 'ok'}, 200
+
         except:
             return {'reason': 'no such id', 'status': 'error'}, 400
 
@@ -46,6 +49,15 @@ def user(user_id):
 
         except:
             return {'status': "error", 'reason': 'no such user id'}, 500  # status code
+
+
+@app.route('/stop_server')
+def stop_server():
+    try:
+        os.kill(os.getpid(), signal.CTRL_C_EVENT)
+        return 'Server stopped'
+    except:
+        return 'Server failed to stop'
 
 
 # todo elif for put and delete

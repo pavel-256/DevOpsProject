@@ -2,7 +2,7 @@ import json
 
 import requests
 
-with requests.post('http://127.0.0.1:5000/users/1', json={"user_name": "John"}) as res1:
+with requests.post('http://127.0.0.1:5000/users/5', json={"user_name": "Parker"}) as res1:
     if res1.ok:
         print(res1.json())
         with requests.get('http://127.0.0.1:5000/users/1') as res2:
