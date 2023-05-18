@@ -5,7 +5,7 @@ pipeline {
         stage('Pull Code') {
             steps {
                 // Pull code from your GitHub repository
-                git 'https://github.com/pavel-256/DevOpsProject'
+                git 'https://github.com/pavel-256/DevOpsProject/tree/main/files'
             }
         }
         
