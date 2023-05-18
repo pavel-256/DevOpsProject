@@ -1,39 +1,48 @@
 pipeline {
     agent any
+    
     stages {
-        stage('checkout') {
+        stage('Pull Code') {
             steps {
-                script {
-                    properties([pipelineTriggers([pollSCM('* * * * *')])])
-                }
-                git 'https://github.com/Dgotlieb/JenkinsTest.git'
+                // Pull code from your GitHub repository
+                git 'https://github.com/pavel-256/DevOpsProject'
             }
         }
-        stage('run python') {
+        
+        stage('Run Backend') {
             steps {
-                script {
-                    if (checkOs() == 'Windows') {
-                        return 'Ok'
-                    } else {
-                        sh 'python 1.py'
-                    }
-                }
+                sh 'python rest_app.py'
             }
         }
-    }
-}
-
-def checkOs(){
-    if (isUnix()) {
-        def uname = sh script: 'uname', returnStdout: true
-        if (uname.startsWith("Darwin")) {
-            return "Macos"
-        }
-        else {
-            return "Linux"
-        }
-    }
-    else {
-        return "Windows"
-    }
+        
+//         stage('Run Frontend') {
+//             steps {
+//                 sh 'python web_app.py'
+//             }
+//         }
+        
+//         stage('Run Backend Testing') {
+//             steps {
+//                 sh 'python backend_testing.py'
+//             }
+//         }
+        
+//         stage('Run Frontend Testing') {
+//             steps {
+//                 sh 'python frontend_testing.py'
+//             }
+//         }
+        
+//         stage('Run Combined Testing') {
+//             steps {
+//                 sh 'python combined_testing.py'
+//             }
+//         }
+        
+//         stage('Run Clean Environment') {
+//             steps {
+//                 sh 'python clean_environment.py'
+//             }
+//         }
+//     }
 }
