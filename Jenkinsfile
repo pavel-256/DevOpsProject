@@ -18,35 +18,35 @@ pipeline {
         stage('Frontend') {
             steps {
                 // Run web_app.py (frontend)
-                sh 'python files/web_app.py'
+                sh 'web_app.py'
             }
         }
 
         stage('Backend Testing') {
             steps {
                 // Run backend_testing.py
-                sh 'python files/backend_testing.py'
+                sh 'backend_testing.py'
             }
         }
 
         stage('Frontend Testing') {
             steps {
                 // Run frontend_testing.py
-                sh 'python files/frontend_testing.py'
+                sh 'frontend_testing.py'
             }
         }
 
         stage('Combined Testing') {
             steps {
                 // Run combined_testing.py
-                sh 'python files/combined_testing.py'
+                sh 'combined_testing.py'
             }
         }
 
         stage('Clean Environment') {
             steps {
                 // Run clean_environment.py
-                sh 'python files/clean_environment.py'
+                sh 'clean_environment.py'
             }
         }
     }
