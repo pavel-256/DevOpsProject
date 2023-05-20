@@ -11,7 +11,7 @@ pipeline {
         stage('Backend') {
             steps {
                 // Run rest_app.py (backend)
-                bat 'files/rest_app.py'
+                bat 'python files/rest_app.py'
             }
         }
 
