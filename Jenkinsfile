@@ -2,14 +2,13 @@
 pipeline {
     agent any
 
-    stages {
-        stage('Pull Code') {
-            steps {
-                // Pull code from your GitHub repository
-                  git url: 'https://github.com/pavel-256/DevOpsProject.git', branch: 'Dev_Branch'
-            }
-        }
-
+//     stages {
+//         stage('Pull Code') {
+//             steps {
+//                 // Pull code from your GitHub repository
+//                   git url: 'https://github.com/pavel-256/DevOpsProject.git', branch: 'Dev_Branch'
+//             }
+//         }
         stage('Run Backend') {
             steps {
            bat 'start /min python rest_app.py'
