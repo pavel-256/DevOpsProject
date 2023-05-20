@@ -8,7 +8,7 @@ from selenium.webdriver.chrome.service import Service
 def testing():
     try:
         # Send a POST request to add a new user
-        response_post = requests.post('http://127.0.0.1:5000/users/1', json={"user_name": "John"})
+        response_post = requests.post('http://127.0.0.1:5000/users/2', json={"user_name": "Parker"})
         response_post.raise_for_status()
 
         # Send a GET request to retrieve user data
