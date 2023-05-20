@@ -1,5 +1,5 @@
 from flask import Flask, request
-from files.db_connector import get_request
+from db_connector import get_request
 import os
 import signal
 
