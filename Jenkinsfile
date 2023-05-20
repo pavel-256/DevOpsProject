@@ -11,7 +11,7 @@ pipeline {
         stage('Backend') {
             steps {
                 // Run rest_app.py (backend)
-                sh 'python files/rest_app.py'
+                sh 'python Project/files/rest_app.py'
             }
         }
 
