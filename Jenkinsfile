@@ -4,7 +4,7 @@ pipeline {
         stage('Build') {
             steps {
                 // Get some code from a GitHub repository
-                git url: 'https://github.com/pavel-256/DevOpsProject.git', branch: 'main'
+                git url: 'https://github.com/pavel-256/DevOpsProject.git', branch: 'Dev_Branch'
 
             }
         }
