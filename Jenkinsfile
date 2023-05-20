@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('checkout') {
             steps {
-             
+
                 git 'https://github.com/Dgotlieb/JenkinsTest.git'
             }
         }
@@ -11,9 +11,9 @@ pipeline {
             steps {
                 script {
                     if (checkOs() == 'Windows') {
-                        bat 'python 1.py'
+                        bat 'python 3 1.py'
                     } else {
-                        sh 'python 1.py'
+                        sh 'python 3 1.py'
                     }
                 }
             }
