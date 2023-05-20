@@ -1,48 +1,52 @@
 pipeline {
     agent any
-    
     stages {
         stage('Pull Code') {
             steps {
-                // Pull code from your GitHub repository
-                git 'https://github.com/pavel-256/DevOpsProject.git'
+                // Pull code from your Github repository
+                git branch: 'main', url: 'https://github.com/pavel-256/DevOpsProject.git'
             }
         }
-        
-        stage('Run Backend') {
+
+        stage('Backend') {
             steps {
-           bat 'start /min python rest_app.py'
-       }
-      
-        }
-        
-        stage('Run Frontend') {
-            steps {
-                sh 'python web_app.py'
+                // Run rest_app.py (backend)
+                sh 'python files/rest_app.py'
             }
         }
-        
-        stage('Run Backend Testing') {
+
+        stage('Frontend') {
             steps {
-                sh 'python backend_testing.py'
+                // Run web_app.py (frontend)
+                sh 'python files/web_app.py'
             }
         }
-        
-        stage('Run Frontend Testing') {
+
+        stage('Backend Testing') {
             steps {
-                sh 'python frontend_testing.py'
+                // Run backend_testing.py
+                sh 'python files/backend_testing.py'
             }
         }
-        
-        stage('Run Combined Testing') {
+
+        stage('Frontend Testing') {
             steps {
-                sh 'python combined_testing.py'
+                // Run frontend_testing.py
+                sh 'python files/frontend_testing.py'
             }
         }
-        
-        stage('Run Clean Environment') {
+
+        stage('Combined Testing') {
             steps {
-                sh 'python clean_environment.py'
+                // Run combined_testing.py
+                sh 'python files/combined_testing.py'
+            }
+        }
+
+        stage('Clean Environment') {
+            steps {
+                // Run clean_environment.py
+                sh 'python files/clean_environment.py'
             }
         }
     }
