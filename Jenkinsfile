@@ -9,7 +9,7 @@ pipeline {
         }
                stage('install prerequisites') {
            steps {
-                bat 'py -m pip install requests'
+                bat 'py -m pip install flask'
             }
         }
         stage('Backend') {
