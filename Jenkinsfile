@@ -10,7 +10,7 @@ pipeline {
                stage('install prerequisites') {
            steps {
                 bat 'py -m pip install flask'
-                bat 'py -m pip pymysql'
+                bat 'py -m pip install pymysql'
             }
         }
         stage('Backend') {
