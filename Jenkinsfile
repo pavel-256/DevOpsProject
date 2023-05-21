@@ -7,7 +7,11 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/pavel-256/DevOpsProject.git'
             }
         }
-
+               stage('install prerequisites') {
+           steps {
+                bat 'py -m pip install requests'
+            }
+        }
         stage('Backend') {
             steps {
                 // Run rest_app.py (backend)
