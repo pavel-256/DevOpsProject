@@ -7,10 +7,11 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/pavel-256/DevOpsProject.git'
             }
         }
-               stage('install prerequisites') {
+               stage('Install  modules') {
            steps {
                 bat 'py -m pip install flask'
                 bat 'py -m pip install pymysql'
+                bat 'py -m pip install selenium'
             }
         }
 
