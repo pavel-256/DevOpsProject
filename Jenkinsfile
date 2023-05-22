@@ -13,6 +13,15 @@ pipeline {
                 bat 'py -m pip install pymysql'
             }
         }
+
+
+        stage('Backend') {
+            steps {
+                // Run rest_app.py (backend)
+                bat 'start/min py files/rest_app.py'
+            }
+        }
+
         stage('Backend') {
             steps {
                 // Run rest_app.py (backend)
@@ -23,7 +32,7 @@ pipeline {
         stage('Frontend') {
             steps {
                 // Run web_app.py (frontend)
-                bat 'py files/web_app.py'
+                bat 'start/min py files/web_app.py'
             }
         }
 
