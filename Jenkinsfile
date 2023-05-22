@@ -22,13 +22,6 @@ pipeline {
             }
         }
 
-        stage('Backend') {
-            steps {
-                // Run rest_app.py (backend)
-                bat 'py files/rest_app.py'
-            }
-        }
-
         stage('Frontend') {
             steps {
                 // Run web_app.py (frontend)
