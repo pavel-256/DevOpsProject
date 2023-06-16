@@ -32,13 +32,13 @@ pipeline {
 
         stage('Run backend_testing.py') {
             steps {
-                bat 'python files/docker_backend_testing.py'
+                bat 'py files/docker_backend_testing.py'
             }
         }
 
         stage('Run clean_environment.py') {
             steps {
-                bat 'python files/clean_environment.py'
+                bat 'py files/clean_environment.py'
             }
         }
 
@@ -75,7 +75,7 @@ pipeline {
 
         stage('Test dockerized app') {
             steps {
-                bat 'python files/docker_backend_testing.py'
+                bat 'py files/docker_backend_testing.py'
             }
         }
 
