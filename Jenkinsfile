@@ -24,7 +24,7 @@ pipeline {
                     if (isUnix()) {
                         sh 'nohup python rest_app.py &'
                     } else {
-                        bat 'start /B python files/rest_app.py'
+                        bat 'start /B py files/rest_app.py'
                     }
                 }
             }
