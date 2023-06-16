@@ -1,8 +1,9 @@
 import pymysql
-from flask import Flask, request
-from db_connector import get_request, post_request, delete_request, put_request
+from flask import Flask
+# request
+# from db_connector import get_request, post_request, delete_request, put_request
 import os
-import signal
+
 
 app = Flask(__name__)
 
