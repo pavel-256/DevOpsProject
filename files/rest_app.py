@@ -1,6 +1,6 @@
 import pymysql
 from flask import Flask, request
-from db_connector import get_request, post_request, delete_request, put_request, cursor
+from db_connector import get_request, post_request, delete_request, put_request
 import os
 import signal
 
@@ -13,14 +13,20 @@ dbColumns = 'user_name,user_id,creation_date'
 users = {}
 
 # Establishing a connection to the database
-conn = pymysql.connect(host=os.environ.get('HOST'), user=os.environ.get('DB_USER'),
-                       passwd=os.environ.get('DB_PASSWORD'), db=os.environ.get('DB_NAME'))
+
+host = os.environ.get('DB_HOST', 'localhost')
+user = os.environ.get('DB_USER', 'root')
+password = os.environ.get('DB_PASSWORD', '')
+database = os.environ.get('DB_NAME', '')
+
+# Establish connection to the database
+conn = pymysql.connect(host=host, user=user, passwd=password, db=database)
+cursor = conn.cursor()
 conn.autocommit(True)
 
 
 @app.route('/users/<user_id>', methods=['GET'])
 def get_users(user_id):
-
     sql = f"SELECT * FROM {dataBase} WHERE  user_id = %s"
 
     cursor.execute(sql, user_id)
@@ -35,7 +41,6 @@ def get_users(user_id):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
-
 
 #
 # # local users storage
