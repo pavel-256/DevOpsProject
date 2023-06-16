@@ -14,6 +14,7 @@ pipeline {
                 bat 'py -m pip install flask'
                 bat 'py -m pip install pymysql'
                 bat 'py -m pip install selenium'
+                bat 'py -m pip install requests'
             }
         }
 
