@@ -1,9 +1,10 @@
 import pymysql
-from flask import Flask
+import requests
+from flask import Flask, request
 # request
 # from db_connector import get_request, post_request, delete_request, put_request
 import os
-
+from datetime import date
 
 app = Flask(__name__)
 
@@ -26,25 +27,45 @@ cursor = conn.cursor()
 conn.autocommit(True)
 
 
-@app.route('/users/<user_id>', methods=['GET'])
+@app.route('/users/<user_id>', methods=['GET', 'POST'])
 def get_users(user_id):
-    sql = f"SELECT * FROM {dataBase} WHERE  user_id = %s"
+    if request.method == 'GET':
+        sql = f"SELECT * FROM {dataBase} WHERE  user_id = %s"
 
-    cursor.execute(sql, user_id)
+        cursor.execute(sql, user_id)
 
-    # Close the connection
-    cursor.close()
+        # Close the connection
+        cursor.close()
 
-    # Return the response
-    result = cursor.fetchall()
-    return result
+        # Return the response
+        result = cursor.fetchall()
+        return result
+    elif request.method == 'POST':
+
+        # getting the json data payload from request
+        request_data = request.json
+
+        # treating request_data as a dictionary to get a specific value from key
+        user_name = request_data.get('user_name')
+        users[user_id] = user_name
+
+        # Define the query with placeholders for the variables
+        sql = f"INSERT INTO {dataBase}  ({dbColumns}) VALUES(%s,%s,%s)"
+
+        # Execute the query with the values
+        values = (user_name, user_id, date.today())
+
+        # Execute the query with the values
+        cursor.execute(sql, values)
+
+        return {'user id': user_id, 'user_added': user_name, 'status': 'ok'}, 200  # status code
+
 
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
 
-#
-# # local users storage
+# local users storage
 # users = {}
 #
 # app = Flask(__name__)
