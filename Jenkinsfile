@@ -2,9 +2,21 @@ pipeline {
     agent any
 
     stages {
+        stage('Load .env file') {
+            steps {
+                script {
+                    // Load the contents of the .env file into environment variables
+                    def envFile = readFile('.env')
+                    envFile.readLines().each { line ->
+                        def (key, value) = line.tokenize('=')
+                        env."${key.trim()}" = value.trim()
+                    }
+                }
+            }
+        }
+
         stage('Pull code from GitHub') {
             steps {
-                // Pull code from your Github repository
                 git branch: 'main', url: 'https://github.com/pavel-256/DevOpsProject.git'
             }
         }
@@ -21,11 +33,10 @@ pipeline {
         stage('Run rest_app.py') {
             steps {
                 script {
-                    // Start rest_app.py as a background process
                     if (isUnix()) {
                         sh 'nohup python rest_app.py &'
                     } else {
-                        bat 'start /B py files/rest_app.py'
+                        bat 'start /B py rest_app.py'
                     }
                 }
             }
@@ -33,27 +44,33 @@ pipeline {
 
         stage('Run backend_testing.py') {
             steps {
-                bat 'py files/docker_backend_testing.py'
+                bat 'py docker_backend_testing.py'
             }
         }
 
         stage('Run clean_environment.py') {
             steps {
-                bat 'py files/clean_environment.py'
+                bat 'py clean_environment.py'
+            }
+        }
+
+        stage('Build Docker image') {
+            steps {
+                script {
+                    def imageName = env.IMAGE_NAME
+                    def dockerfilePath = env.DOCKERFILE_PATH
+                    bat "docker build -t ${imageName} ${dockerfilePath}"
+                }
             }
         }
 
         stage('Push Docker image') {
             steps {
                 script {
-                    // Read the Docker Hub credentials from the .env file
-                    def dockerHubUsername = readFile('.env').readLines().find { it.startsWith('DOCKER_USERNAME=') }?.substring('DOCKER_USERNAME='.length())
-                    def dockerHubPassword = readFile('.env').readLines().find { it.startsWith('DOCKER_PASSWORD=') }?.substring('DOCKER_PASSWORD='.length())
+                    def dockerHubUsername = env.DOCKER_USERNAME
+                    def dockerHubPassword = env.DOCKER_PASSWORD
+                    def imageName = env.IMAGE_NAME
 
-                    // Read the image name from the .env file
-                    def imageName = readFile('.env').readLines().find { it.startsWith('IMAGE_NAME=') }?.substring('IMAGE_NAME='.length())
-
-                    // Login to Docker Hub and push the image
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                         bat "docker login -u ${dockerHubUsername} -p ${dockerHubPassword}"
                         bat "docker push ${dockerHubUsername}/${imageName}"
@@ -76,15 +93,14 @@ pipeline {
 
         stage('Test dockerized app') {
             steps {
-                bat 'py files/docker_backend_testing.py'
+                bat 'py docker_backend_testing.py'
             }
         }
 
         stage('Clean environment') {
             steps {
                 script {
-                    // Read the image name from the .env file
-                    def imageName = readFile('.env').readLines().find { it.startsWith('IMAGE_NAME=') }?.substring('IMAGE_NAME='.length())
+                    def imageName = env.IMAGE_NAME
                     bat "docker-compose down"
                     bat "docker rmi ${imageName}"
                 }
