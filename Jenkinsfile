@@ -48,11 +48,11 @@ pipeline {
             steps {
                 script {
                     // Read the Docker Hub credentials from the .env file
-                    def dockerHubUsername = readFile('.env').readLines().find { it.startsWith('DOCKER_USERNAME=') }?.substring('DOCKER_USERNAME='.length())
-                    def dockerHubPassword = readFile('.env').readLines().find { it.startsWith('DOCKER_PASSWORD=') }?.substring('DOCKER_PASSWORD='.length())
+                    def dockerHubUsername = "pavel256"
+                    def dockerHubPassword =  "L$t&caW?_t^vvu7"
 
                     // Read the image name from the .env file
-                    def imageName = readFile('.env').readLines().find { it.startsWith('IMAGE_NAME=') }?.substring('IMAGE_NAME='.length())
+                    def imageName = "Test"
 
                     // Login to Docker Hub and push the image
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
