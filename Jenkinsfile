@@ -1,10 +1,13 @@
+@Library('dotenv-library') _
+import io.github.cdimascio.dotenv.Dotenv
+
 pipeline {
     agent any
 
     stages {
         stage('Pull code from GitHub') {
             steps {
-                // Pull code from your GitHub repository
+                // Pull code from your Github repository
                 git branch: 'main', url: 'https://github.com/pavel-256/DevOpsProject.git'
             }
         }
@@ -19,21 +22,12 @@ pipeline {
             }
         }
 
-        stage('Load environment variables') {
-            steps {
-                script {
-                    // Load environment variables from .env file
-                    bat 'py -c "from dotenv import load_dotenv; load_dotenv()"'
-                }
-            }
-        }
-
         stage('Run rest_app.py') {
             steps {
                 script {
                     // Start rest_app.py as a background process
                     if (isUnix()) {
-                        sh 'nohup python files/rest_app.py &'
+                        sh 'nohup python rest_app.py &'
                     } else {
                         bat 'start /B py files/rest_app.py'
                     }
@@ -56,10 +50,15 @@ pipeline {
         stage('Push Docker image') {
             steps {
                 script {
+                    // Load variables from .env file
+                    def dotenv = Dotenv.load()
+
                     // Read the Docker Hub credentials from the .env file
-                    def dockerHubUsername = bat(script: 'py -c "from dotenv import load_dotenv; load_dotenv(); import os; print(os.getenv(\'DOCKER_USERNAME\'))"', returnStdout: true).trim()
-                    def dockerHubPassword = bat(script: 'py -c "from dotenv import load_dotenv; load_dotenv(); import os; print(os.getenv(\'DOCKER_PASSWORD\'))"', returnStdout: true).trim()
-                    def imageName = bat(script: 'py -c "from dotenv import load_dotenv; load_dotenv(); import os; print(os.getenv(\'IMAGE_NAME\'))"', returnStdout: true).trim()
+                    def dockerHubUsername = dotenv.get('DOCKER_USERNAME')
+                    def dockerHubPassword = dotenv.get('DOCKER_PASSWORD')
+
+                    // Read the image name from the .env file
+                    def imageName = dotenv.get('IMAGE_NAME')
 
                     // Login to Docker Hub and push the image
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
@@ -92,7 +91,9 @@ pipeline {
             steps {
                 script {
                     // Read the image name from the .env file
-                    def imageName = bat(script: 'py -c "from dotenv import load_dotenv; load_dotenv(); import os; print(os.getenv(\'IMAGE_NAME\'))"', returnStdout: true).trim()
+                    def dotenv = Dotenv.load()
+                    def imageName = dotenv.get('IMAGE_NAME')
+
                     bat "docker-compose down"
                     bat "docker rmi ${imageName}"
                 }
