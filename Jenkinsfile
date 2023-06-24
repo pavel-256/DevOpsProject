@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE_TAG = ""
+    }
+
     stages {
         stage('Load .env file') {
             steps {
@@ -59,7 +63,16 @@ pipeline {
                 script {
                     def imageName = env.IMAGE_NAME
                     def dockerfilePath = env.DOCKERFILE_PATH
-                    bat "docker build -t ${imageName} ."
+                    def imageTag = env.BUILD_NUMBER
+
+                    // Tag the Docker image with the image tag
+                    def taggedImage = "${imageName}:${imageTag}"
+
+                    // Build the Docker image with the tagged image
+                    bat "docker build -t ${taggedImage} -f ${dockerfilePath} ."
+
+                    // Set the environment variable with the image tag for later use
+                    env.IMAGE_TAG = imageTag
                 }
             }
         }
@@ -70,11 +83,15 @@ pipeline {
                     def dockerHubUsername = env.DOCKER_USERNAME
                     def dockerHubPassword = env.DOCKER_PASSWORD
                     def imageName = env.IMAGE_NAME
+                    def imageTag = env.IMAGE_TAG
+
+                    def taggedImage = "${imageName}:${imageTag}"
+                    def dockerHubImage = "${dockerHubUsername}/${imageName}:${imageTag}"
 
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                         bat "docker login -u ${dockerHubUsername} -p ${dockerHubPassword}"
-                        bat "docker tag ${imageName} ${dockerHubUsername}/${imageName}"
-                        bat "docker push ${dockerHubUsername}/${imageName}"
+                        bat "docker tag ${taggedImage} ${dockerHubImage}"
+                        bat "docker push ${dockerHubImage}"
                     }
                 }
             }
@@ -82,7 +99,7 @@ pipeline {
 
         stage('Set compose image version') {
             steps {
-                sh 'echo "IMAGE_TAG=${BUILD_NUMBER}" > .env'
+                sh "echo 'IMAGE_TAG=${env.IMAGE_TAG}' > .env"
             }
         }
 
@@ -102,8 +119,12 @@ pipeline {
             steps {
                 script {
                     def imageName = env.IMAGE_NAME
+                    def imageTag = env.IMAGE_TAG
+                    def dockerHubUsername = env.DOCKER_USERNAME
+                    def dockerHubImage = "${dockerHubUsername}/${imageName}:${imageTag}"
+
                     bat "docker-compose down"
-                    bat "docker rmi ${imageName}"
+                    bat "docker rmi ${dockerHubImage}"
                 }
             }
         }
