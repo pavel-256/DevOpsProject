@@ -14,10 +14,10 @@ pipeline {
     }
 
     stages {
-        stage('Pull code from GitHub') {
+       stage('Pull code from GitHub') {
             steps {
                 // Pull code from your GitHub repository
-                bat 'git clone -b main https://github.com/pavel-256/DevOpsProject.git files'
+                git branch: 'main', url: 'https://github.com/pavel-256/DevOpsProject.git'
             }
         }
 
