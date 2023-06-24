@@ -9,14 +9,13 @@ pipeline {
         DB_PASSWORD = ''
         DB_ROOT_PASSWORD = ''
         IMAGE_NAME = 'AmazingImage'
-        DOCKER_USERNAME = 'Pavel256'
-        DOCKER_PASSWORD = 'L$t&caW?_t^vvu7'
+        DOCKER_USERNAME = credentials('DOCKER_USERNAME')
+        DOCKER_PASSWORD = credentials('DOCKER_PASSWORD')
     }
 
     stages {
-       stage('Pull code from GitHub') {
+        stage('Pull code from GitHub') {
             steps {
-                // Pull code from your GitHub repository
                 git branch: 'main', url: 'https://github.com/pavel-256/DevOpsProject.git'
             }
         }
@@ -51,13 +50,17 @@ pipeline {
 
         stage('Push Docker image') {
             steps {
-                bat """
-                echo DOCKER_USERNAME=${DOCKER_USERNAME} > files/.env
-                echo DOCKER_PASSWORD=${DOCKER_PASSWORD} >> files/.env
-                echo IMAGE_NAME=${IMAGE_NAME} >> files/.env
-                docker login -u %DOCKER_USERNAME% -p %DOCKER_PASSWORD%
-                docker push %DOCKER_USERNAME%/%IMAGE_NAME%
-                """
+                script {
+                    withCredentials([string(credentialsId: 'DOCKER_USERNAME', variable: 'DOCKER_USERNAME'), string(credentialsId: 'DOCKER_PASSWORD', variable: 'DOCKER_PASSWORD')]) {
+                        sh """
+                        echo DOCKER_USERNAME=${DOCKER_USERNAME} > files/.env
+                        echo DOCKER_PASSWORD=${DOCKER_PASSWORD} >> files/.env
+                        echo IMAGE_NAME=${IMAGE_NAME} >> files/.env
+                        docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+                        docker push ${DOCKER_USERNAME}/${IMAGE_NAME}:${IMAGE_TAG}
+                        """
+                    }
+                }
             }
         }
 
@@ -83,7 +86,7 @@ pipeline {
             steps {
                 bat """
                 docker-compose -f files/docker-compose.yml down
-                docker rmi %IMAGE_NAME%
+                docker rmi ${DOCKER_USERNAME}/${IMAGE_NAME}:${IMAGE_TAG}
                 """
             }
         }
