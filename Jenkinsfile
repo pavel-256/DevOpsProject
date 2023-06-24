@@ -4,25 +4,8 @@ pipeline {
     stages {
         stage('Pull code from GitHub') {
             steps {
-                // Pull code from your GitHub repository
+                // Pull code from your Github repository
                 git branch: 'main', url: 'https://github.com/pavel-256/DevOpsProject.git'
-            }
-        }
-
-        stage('Load .env file') {
-            steps {
-                script {
-                    // Set the environment variables
-                    env.IMAGE_TAG = '1.0.0'
-                    env.DB_HOST = 'localhost'
-                    env.DB_NAME = 'DevOps'
-                    env.DB_USER = 'root'
-                    env.DB_PASSWORD = ''
-                    env.DB_ROOT_PASSWORD = ''
-                    env.IMAGE_NAME = 'AmazingImage'
-                    env.DOCKER_USERNAME = 'pavel256'
-                    env.DOCKER_PASSWORD = 'L$t&caW?_t^vvu7'
-                }
             }
         }
 
@@ -65,11 +48,11 @@ pipeline {
             steps {
                 script {
                     // Read the Docker Hub credentials from the .env file
-                    def dockerHubUsername = env.DOCKER_USERNAME
-                    def dockerHubPassword = env.DOCKER_PASSWORD
+                    def dockerHubUsername = readFile('.env').readLines().find { it.startsWith('DOCKER_USERNAME=') }?.substring('DOCKER_USERNAME='.length())
+                    def dockerHubPassword = readFile('.env').readLines().find { it.startsWith('DOCKER_PASSWORD=') }?.substring('DOCKER_PASSWORD='.length())
 
                     // Read the image name from the .env file
-                    def imageName = env.IMAGE_NAME
+                    def imageName = readFile('.env').readLines().find { it.startsWith('IMAGE_NAME=') }?.substring('IMAGE_NAME='.length())
 
                     // Login to Docker Hub and push the image
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
@@ -102,7 +85,7 @@ pipeline {
             steps {
                 script {
                     // Read the image name from the .env file
-                    def imageName = env.IMAGE_NAME
+                    def imageName = readFile('.env').readLines().find { it.startsWith('IMAGE_NAME=') }?.substring('IMAGE_NAME='.length())
                     bat "docker-compose down"
                     bat "docker rmi ${imageName}"
                 }
