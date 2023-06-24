@@ -62,14 +62,13 @@ pipeline {
             steps {
                 script {
                     def imageName = env.IMAGE_NAME
-                    def dockerfilePath = env.DOCKERFILE_PATH
                     def imageTag = env.BUILD_NUMBER
 
                     // Tag the Docker image with the image tag
                     def taggedImage = "${imageName}:${imageTag}"
 
                     // Build the Docker image with the tagged image
-                    bat "docker build -t ${taggedImage} -f ${dockerfilePath} ."
+                    bat "docker build -t ${taggedImage} ."
 
                     // Set the environment variable with the image tag for later use
                     env.IMAGE_TAG = imageTag
