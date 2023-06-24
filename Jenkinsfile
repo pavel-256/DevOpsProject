@@ -88,7 +88,7 @@ pipeline {
                     def dockerHubImage = "${dockerHubUsername}/${imageName}:${imageTag}"
 
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        bat "docker login -u ${dockerHubUsername} -p ${dockerHubPassword}"
+                        bat "echo ${dockerHubPassword} | docker login -u ${dockerHubUsername} --password-stdin"
                         bat "docker tag ${taggedImage} ${dockerHubImage}"
                         bat "docker push ${dockerHubImage}"
                     }
