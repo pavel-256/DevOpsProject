@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Pull code from GitHub') {
             steps {
-                // Pull code from your Github repository
+                // Pull code from your GitHub repository
                 git branch: 'main', url: 'https://github.com/pavel-256/DevOpsProject.git'
             }
         }
@@ -12,28 +12,16 @@ pipeline {
         stage('Load .env file') {
             steps {
                 script {
-                    // Read the contents of the .env file
-                    def envFile = readFile('.env')
-
-                    // Split the contents by newlines
-                    def lines = envFile.split('\n')
-
-                    // Iterate over each line and extract the key-value pairs
-                    lines.each { line ->
-                        // Skip any empty lines or lines starting with '#'
-                        if (line && !line.startsWith('#')) {
-                            // Split each line by '=' to get the key-value pair
-                            def keyValue = line.split('=')
-                            if (keyValue.size() == 2) {
-                                // Extract the key and value
-                                def key = keyValue[0].trim()
-                                def value = keyValue[1].trim()
-
-                                // Set the environment variable
-                                env[key] = value
-                            }
-                        }
-                    }
+                    // Set the environment variables
+                    env.IMAGE_TAG = '1.0.0'
+                    env.DB_HOST = 'localhost'
+                    env.DB_NAME = 'DevOps'
+                    env.DB_USER = 'root'
+                    env.DB_PASSWORD = ''
+                    env.DB_ROOT_PASSWORD = ''
+                    env.IMAGE_NAME = 'AmazingImage'
+                    env.DOCKER_USERNAME = 'pavel256'
+                    env.DOCKER_PASSWORD = 'L$t&caW?_t^vvu7'
                 }
             }
         }
@@ -44,6 +32,7 @@ pipeline {
                 bat 'py -m pip install pymysql'
                 bat 'py -m pip install selenium'
                 bat 'py -m pip install requests'
+                bat 'py -m pip install python-dotenv'
             }
         }
 
