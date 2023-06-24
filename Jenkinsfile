@@ -1,18 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        IMAGE_TAG = '1.0.0'
-        DB_HOST = 'localhost'
-        DB_NAME = 'DevOps'
-        DB_USER = 'root'
-        DB_PASSWORD = ''
-        DB_ROOT_PASSWORD = ''
-        IMAGE_NAME = 'AmazingImage'
-        DOCKER_USERNAME = credentials('DOCKER_USERNAME')
-        DOCKER_PASSWORD = credentials('DOCKER_PASSWORD')
-    }
-
     stages {
         stage('Pull code from GitHub') {
             steps {
@@ -26,13 +14,18 @@ pipeline {
                 bat 'py -m pip install pymysql'
                 bat 'py -m pip install selenium'
                 bat 'py -m pip install requests'
-                bat 'py -m pip install python-dotenv'
             }
         }
 
         stage('Run rest_app.py') {
             steps {
-                bat 'start /B py files/rest_app.py'
+                script {
+                    if (isUnix()) {
+                        sh 'nohup python rest_app.py &'
+                    } else {
+                        bat 'start /B py files/rest_app.py'
+                    }
+                }
             }
         }
 
@@ -48,17 +41,12 @@ pipeline {
             }
         }
 
-        stage('Push Docker image') {
+        stage('Load .env file') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'DOCKER_USERNAME', variable: 'DOCKER_USERNAME'), string(credentialsId: 'DOCKER_PASSWORD', variable: 'DOCKER_PASSWORD')]) {
-                        sh """
-                        echo DOCKER_USERNAME=${DOCKER_USERNAME} > files/.env
-                        echo DOCKER_PASSWORD=${DOCKER_PASSWORD} >> files/.env
-                        echo IMAGE_NAME=${IMAGE_NAME} >> files/.env
-                        docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
-                        docker push ${DOCKER_USERNAME}/${IMAGE_NAME}:${IMAGE_TAG}
-                        """
+                    // Load the .env file
+                    withEnv(["ENV_FILE=.env"]) {
+                        sh 'source $ENV_FILE'
                     }
                 }
             }
@@ -66,13 +54,13 @@ pipeline {
 
         stage('Set compose image version') {
             steps {
-                bat "echo IMAGE_TAG=${BUILD_NUMBER} > files/.env"
+                sh 'echo "IMAGE_TAG=${BUILD_NUMBER}" > .env'
             }
         }
 
         stage('Run docker-compose up') {
             steps {
-                bat 'docker-compose -f files/docker-compose.yml up -d'
+                bat 'docker-compose up -d'
             }
         }
 
@@ -84,10 +72,11 @@ pipeline {
 
         stage('Clean environment') {
             steps {
-                bat """
-                docker-compose -f files/docker-compose.yml down
-                docker rmi ${DOCKER_USERNAME}/${IMAGE_NAME}:${IMAGE_TAG}
-                """
+                script {
+                    def imageName = readFile('.env').readLines().find { it.startsWith('IMAGE_NAME=') }?.substring('IMAGE_NAME='.length())
+                    bat "docker-compose down"
+                    bat "docker rmi ${imageName}"
+                }
             }
         }
     }
