@@ -17,75 +17,74 @@ pipeline {
         stage('Pull code from GitHub') {
             steps {
                 // Pull code from your GitHub repository
-                git branch: 'main', url: 'https://github.com/pavel-256/DevOpsProject.git'
+                bat 'git clone -b main https://github.com/pavel-256/DevOpsProject.git'
             }
         }
 
         stage('Install modules') {
             steps {
-                sh 'pip install flask'
-                sh 'pip install pymysql'
-                sh 'pip install selenium'
-                sh 'pip install requests'
-                sh 'pip install python-dotenv'
+                bat 'py -m pip install flask'
+                bat 'py -m pip install pymysql'
+                bat 'py -m pip install selenium'
+                bat 'py -m pip install requests'
+                bat 'py -m pip install python-dotenv'
             }
         }
 
         stage('Run rest_app.py') {
             steps {
-                script {
-                    // Start rest_app.py as a background process
-                    sh 'nohup python rest_app.py &'
-                }
+                bat 'start /B py DevOpsProject/rest_app.py'
             }
         }
 
         stage('Run backend_testing.py') {
             steps {
-                sh 'python docker_backend_testing.py'
+                bat 'py DevOpsProject/docker_backend_testing.py'
             }
         }
 
         stage('Run clean_environment.py') {
             steps {
-                sh 'python clean_environment.py'
+                bat 'py DevOpsProject/clean_environment.py'
             }
         }
 
         stage('Push Docker image') {
             steps {
-                script {
-                    // Login to Docker Hub and push the image
-                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
-                        sh "docker push ${DOCKER_USERNAME}/${IMAGE_NAME}:${IMAGE_TAG}"
-                    }
-                }
+                bat """
+                echo DOCKER_USERNAME=${DOCKER_USERNAME} > .env
+                echo DOCKER_PASSWORD=${DOCKER_PASSWORD} >> .env
+                echo IMAGE_NAME=${IMAGE_NAME} >> .env
+                docker login -u %DOCKER_USERNAME% -p %DOCKER_PASSWORD%
+                docker push %DOCKER_USERNAME%/%IMAGE_NAME%
+                """
             }
         }
 
         stage('Set compose image version') {
             steps {
-                sh "echo 'IMAGE_TAG=${BUILD_NUMBER}' > .env"
+                bat "echo IMAGE_TAG=${BUILD_NUMBER} > .env"
             }
         }
 
         stage('Run docker-compose up') {
             steps {
-                sh 'docker-compose up -d'
+                bat 'docker-compose up -d'
             }
         }
 
         stage('Test dockerized app') {
             steps {
-                sh 'python docker_backend_testing.py'
+                bat 'py DevOpsProject/docker_backend_testing.py'
             }
         }
 
         stage('Clean environment') {
             steps {
-                sh 'docker-compose down'
-                sh 'docker rmi ${DOCKER_USERNAME}/${IMAGE_NAME}:${IMAGE_TAG}'
+                bat """
+                docker-compose down
+                docker rmi %IMAGE_NAME%
+                """
             }
         }
     }
