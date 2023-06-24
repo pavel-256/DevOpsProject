@@ -83,11 +83,30 @@ pipeline {
 //             }
 //         }
 
-//         stage('Set compose image version') {
-//             steps {
-//                 bat 'echo "IMAGE_TAG=\"${BUILD_NUMBER}\"" > .env'
-//             }
-//         }
+
+stage('Set compose image version') {
+    steps {
+        script {
+            def imageName = env.IMAGE_NAME
+            def imageTag = env.BUILD_NUMBER
+            def envContent = "IMAGE_TAG=${imageTag}\n"
+
+            // Read the existing .env file
+            def existingEnvContent = readFile('.env')
+
+            // Remove any existing IMAGE_TAG line
+            existingEnvContent = existingEnvContent.replaceAll(/IMAGE_TAG=.*/, '')
+
+            // Append the new IMAGE_TAG line
+            envContent = existingEnvContent + envContent
+
+            // Write the updated .env file
+            writeFile file: '.env', text: envContent
+        }
+    }
+}
+
+
 
         stage('Run docker-compose up') {
             steps {
