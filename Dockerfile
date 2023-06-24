@@ -2,19 +2,20 @@
 FROM python:3.9
 
 # Set the working directory in the container
+# Use a base image with the desired operating system and dependencies
+FROM python:3.9
+
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copy the requirements.txt file to the container
-COPY requirements.txt .
+# Copy the application code to the container
+COPY . /app
 
-# Install the project dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Install required Python modules
+RUN pip install --no-cache-dir flask pymysql selenium requests
 
-# Copy the project files to the container
-COPY . .
+# Expose the port on which the application will listen
+EXPOSE 5000
 
-# Expose any necessary ports
-EXPOSE 8000
-
-# Run the backend application
-CMD [ "python", "rest_app.py" ]
+# Specify the command to run the application
+CMD ["python", "rest_app.py"]
