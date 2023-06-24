@@ -83,11 +83,11 @@ pipeline {
 //             }
 //         }
 
-        stage('Set compose image version') {
-            steps {
-                bat 'echo "IMAGE_TAG=\"${BUILD_NUMBER}\"" > .env'
-            }
-        }
+//         stage('Set compose image version') {
+//             steps {
+//                 bat 'echo "IMAGE_TAG=\"${BUILD_NUMBER}\"" > .env'
+//             }
+//         }
 
         stage('Run docker-compose up') {
             steps {
