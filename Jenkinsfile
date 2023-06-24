@@ -67,21 +67,21 @@ pipeline {
             }
         }
 
-        stage('Push Docker image') {
-            steps {
-                script {
-                    def dockerHubUsername = env.DOCKER_USERNAME
-                    def dockerHubPassword = env.DOCKER_PASSWORD
-                    def imageName = env.IMAGE_NAME
-
-                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        bat "docker login -u ${dockerHubUsername} -p ${dockerHubPassword}"
-                        bat "docker tag ${imageName} ${dockerHubUsername}/${imageName}"
-                        bat "docker push ${dockerHubUsername}/${imageName}"
-                    }
-                }
-            }
-        }
+//         stage('Push Docker image') {
+//             steps {
+//                 script {
+//                     def dockerHubUsername = env.DOCKER_USERNAME
+//                     def dockerHubPassword = env.DOCKER_PASSWORD
+//                     def imageName = env.IMAGE_NAME
+//
+//                     withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+//                         bat "docker login -u ${dockerHubUsername} -p ${dockerHubPassword}"
+//                         bat "docker tag ${imageName} ${dockerHubUsername}/${imageName}"
+//                         bat "docker push ${dockerHubUsername}/${imageName}"
+//                     }
+//                 }
+//             }
+//         }
 
         stage('Set compose image version') {
             steps {
