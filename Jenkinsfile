@@ -9,13 +9,41 @@ pipeline {
             }
         }
 
+        stage('Load .env file') {
+            steps {
+                script {
+                    // Read the contents of the .env file
+                    def envFile = readFile('.env')
+
+                    // Split the contents by newlines
+                    def lines = envFile.split('\n')
+
+                    // Iterate over each line and extract the key-value pairs
+                    lines.each { line ->
+                        // Skip any empty lines or lines starting with '#'
+                        if (line && !line.startsWith('#')) {
+                            // Split each line by '=' to get the key-value pair
+                            def keyValue = line.split('=')
+                            if (keyValue.size() == 2) {
+                                // Extract the key and value
+                                def key = keyValue[0].trim()
+                                def value = keyValue[1].trim()
+
+                                // Set the environment variable
+                                env[key] = value
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         stage('Install modules') {
             steps {
                 bat 'py -m pip install flask'
                 bat 'py -m pip install pymysql'
                 bat 'py -m pip install selenium'
                 bat 'py -m pip install requests'
-                bat 'py -m pip install python-dotenv'
             }
         }
 
@@ -48,11 +76,11 @@ pipeline {
             steps {
                 script {
                     // Read the Docker Hub credentials from the .env file
-                    def dockerHubUsername = "pavel256"
-                    def dockerHubPassword =  "L$t&caW?_t^vvu7"
+                    def dockerHubUsername = env.DOCKER_USERNAME
+                    def dockerHubPassword = env.DOCKER_PASSWORD
 
                     // Read the image name from the .env file
-                    def imageName = "Test"
+                    def imageName = env.IMAGE_NAME
 
                     // Login to Docker Hub and push the image
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
@@ -85,7 +113,7 @@ pipeline {
             steps {
                 script {
                     // Read the image name from the .env file
-                    def imageName = readFile('.env').readLines().find { it.startsWith('IMAGE_NAME=') }?.substring('IMAGE_NAME='.length())
+                    def imageName = env.IMAGE_NAME
                     bat "docker-compose down"
                     bat "docker rmi ${imageName}"
                 }
