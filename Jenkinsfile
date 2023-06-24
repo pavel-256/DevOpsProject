@@ -23,7 +23,7 @@ pipeline {
                     if (isUnix()) {
                         sh 'nohup python rest_app.py &'
                     } else {
-                        bat 'start /B py files/rest_app.py'
+                        bat 'start /B python files/rest_app.py'
                     }
                 }
             }
@@ -44,7 +44,6 @@ pipeline {
         stage('Load .env file') {
             steps {
                 script {
-                    // Load the .env file
                     withEnv(["ENV_FILE=.env"]) {
                         sh 'source $ENV_FILE'
                     }
