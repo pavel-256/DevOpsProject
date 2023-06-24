@@ -89,7 +89,7 @@ stage('Set compose image version') {
         script {
             def imageName = env.IMAGE_NAME
             def imageTag = env.BUILD_NUMBER
-            def envContent = "IMAGE_TAG=${imageTag}\n"
+            def envContent = 1
 
             // Read the existing .env file
             def existingEnvContent = readFile('.env')
