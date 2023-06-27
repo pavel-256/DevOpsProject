@@ -1,6 +1,6 @@
 pipeline {
   agent any
-  
+
   stages {
     stage('Load .env file') {
       steps {
@@ -30,9 +30,12 @@ pipeline {
       }
     }
 
-    stage('Run backend') {
+   stage('Run backend') {
       steps {
-        bat 'py rest_app.py'
+        script {
+            bat 'start /min python rest_app.py'
+          }
+        }
       }
     }
 
