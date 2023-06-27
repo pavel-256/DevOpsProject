@@ -2,20 +2,19 @@
 FROM python:3.9
 
 # Set the working directory in the container
-# Use a base image with the desired operating system and dependencies
-FROM python:3.9
-
-# Set the working directory inside the container
 WORKDIR /app
 
-# Copy the application code to the container
-COPY . /app
+# Copy the requirements file
+COPY requirements.txt .
 
-# Install required Python modules
-RUN pip install --no-cache-dir flask pymysql selenium requests
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose the port on which the application will listen
+# Copy the application files
+COPY . .
+
+# Expose the port on which the Flask app will run
 EXPOSE 5000
 
-# Specify the command to run the application
+# Set the entrypoint command to run the Flask app
 CMD ["python", "rest_app.py"]
