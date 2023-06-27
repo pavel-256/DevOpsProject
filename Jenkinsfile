@@ -85,7 +85,7 @@ pipeline {
     stage('Clean compose environment') {
       steps {
         bat 'docker-compose down'
-        bat 'docker rmi ${env.IMAGE_NAME}:${BUILD_NUMBER}'
+//         bat 'docker rmi ${env.IMAGE_NAME}:${BUILD_NUMBER}'
       }
     }
 
