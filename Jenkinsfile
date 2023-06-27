@@ -33,6 +33,9 @@ pipeline {
    stage('Run backend') {
       steps {
         script {
+          if (isUnix()) {
+            sh 'nohup python rest_app.py &'
+          } else {
             bat 'start /min python rest_app.py'
           }
         }
