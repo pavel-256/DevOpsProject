@@ -1,1 +1,4 @@
-some requirements here....
+flask
+pymysql
+selenium
+requests
