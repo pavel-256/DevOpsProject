@@ -1,15 +1,15 @@
 import requests
 
-# Define the base URL of the Dockerized application
+# Define the base URL of your Dockerized app
 base_url = "http://localhost:5000"
 
-# Perform a GET request to the API endpoint
-response = requests.get(f"{base_url}/api/endpoint")
+# Make a GET request to test the endpoint
+response = requests.get(f"{base_url}/api/test")
 
-# Check the response status code
+# Check the response status code and content
 if response.status_code == 200:
     print("Dockerized app is running successfully!")
     print("Response:", response.text)
 else:
-    print("Error: Failed to access the Dockerized app.")
-    print("Response status code:", response.status_code)
+    print("Error: Dockerized app is not running properly.")
+    print("Response:", response.text)
