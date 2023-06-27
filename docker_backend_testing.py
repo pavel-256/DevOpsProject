@@ -4,7 +4,7 @@ import requests
 base_url = "http://localhost:8080"
 
 # Make a GET request to test the endpoint
-response = requests.get(f"{base_url}/api/test")
+response = requests.get(f"{base_url}")
 
 # Check the response status code and content
 if response.status_code == 200:
