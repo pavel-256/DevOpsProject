@@ -58,8 +58,8 @@ pipeline {
       steps {
         script {
           def imageName = env.IMAGE_NAME
-          def dockerfilePath = env.DOCKERFILE_PATH
-          bat "docker build -t ${imageName} -f ${dockerfilePath} ."
+
+          bat "docker build -t ${imageName}  ."
         }
       }
     }
