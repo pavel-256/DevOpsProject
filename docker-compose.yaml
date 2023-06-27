@@ -1,24 +1,9 @@
 version: '3'
 services:
-  app:
-    build:
-      context: .
+  backend:
+    image: ${IMAGE_NAME}:${IMAGE_TAG}
     ports:
-      - 8080:5000
-    depends_on:
-      - db
-    environment:
-      - MYSQL_DATABASE=${DB_NAME}
-      - MYSQL_USER=${DB_USER}
-      - MYSQL_PASSWORD=${DB_PASSWORD}
-      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
-  db:
-    image: mysql:latest
+      - 5000:5000
     restart: always
     environment:
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-    volumes:
-      - ./data:/var/lib/mysql
+      - ENV_VARIABLE=value
