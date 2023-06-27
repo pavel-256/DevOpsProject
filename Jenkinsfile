@@ -36,7 +36,7 @@ pipeline {
           if (isUnix()) {
             sh 'nohup python rest_app.py &'
           } else {
-            bat 'start /min python rest_app.py'
+            bat 'start /min py rest_app.py'
           }
         }
       }
