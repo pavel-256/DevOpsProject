@@ -1,21 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "test.fullname" . }}
+  name: test-app
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ include "test.name" . }}
-      release: {{ .Release.Name }}
+      app: test-app
   template:
     metadata:
       labels:
-        app: {{ include "test.name" . }}
-        release: {{ .Release.Name }}
+        app: test-app
     spec:
       containers:
-        - name: {{ .Chart.Name }}
-          image: {{ .Values.image.repository }}
-          ports:
-            - containerPort: {{ .Values.appPort }}
+      - name: test-app
+        image: {{ .Values.image.repository }}
+        ports:
+        - containerPort: 5000

@@ -1,7 +1,6 @@
-replicaCount: 5
-image:
-  repository: repo-name:<Version>
-appPort: 5000
-service:
-  type: LoadBalancer
+apiVersion: v2
+name: test
+description: "The best chart ever"
+type: application
+version: 1.33
 

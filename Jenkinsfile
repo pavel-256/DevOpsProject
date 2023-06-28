@@ -85,13 +85,13 @@ pipeline {
     stage('Clean compose environment') {
       steps {
         bat 'docker-compose down'
-//         bat 'docker rmi ${env.IMAGE_NAME}:${BUILD_NUMBER}'
+        bat 'docker rmi ${env.IMAGE_NAME}:${BUILD_NUMBER}'
       }
     }
 
     stage('Deploy HELM chart') {
       steps {
-        bat 'helm upgrade --install test ./chart --set image.version=my_repo:${BUILD_NUMBER}'
+        bat 'helm upgrade --install test ./chart --set image.version={DOCKER_USERNAME}:${BUILD_NUMBER}'
       }
     }
 
