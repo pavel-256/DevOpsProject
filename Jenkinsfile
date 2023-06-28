@@ -59,7 +59,7 @@ pipeline {
         script {
           def imageName = env.IMAGE_NAME
 
-          bat "docker build -t ${imageName}:${env.IMAGE_TAG} ."
+          bat "docker build -t ${imageName}  ."
         }
       }
     }
@@ -68,19 +68,19 @@ pipeline {
       steps {
         script {
           // Read the Docker Hub credentials from the .env file
-          def dockerHubUsername = env.DOCKER_USERNAME
-          def dockerHubPassword = env.DOCKER_PASSWORD
+          def dockerHubUsername = readFile('.env').readLines().find { it.startsWith('DOCKER_USERNAME=') }?.substring('DOCKER_USERNAME='.length())
+          def dockerHubPassword = readFile('.env').readLines().find { it.startsWith('DOCKER_PASSWORD=') }?.substring('DOCKER_PASSWORD='.length())
 
           // Read the image name from the .env file
-          def imageName = env.IMAGE_NAME
+          def imageName = readFile('.env').readLines().find { it.startsWith('IMAGE_NAME=') }?.substring('IMAGE_NAME='.length())
 
           // Tag the image with the build number
-          def taggedImage = "${imageName}:${env.IMAGE_TAG}"
+          def taggedImage = "${imageName}:${BUILD_NUMBER}"
 
           // Login to Docker Hub and push the image
           withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
             bat "docker login -u ${dockerHubUsername} -p ${dockerHubPassword}"
-            bat "docker tag ${imageName}:${env.IMAGE_TAG} ${dockerHubUsername}/${taggedImage}"
+            bat "docker tag ${imageName}/${taggedImage}"
             bat "docker push ${dockerHubUsername}/${taggedImage}"
           }
         }
@@ -108,13 +108,13 @@ pipeline {
     stage('Clean compose environment') {
       steps {
         bat 'docker-compose down'
-        bat 'docker rmi ${env.IMAGE_NAME}:${env.IMAGE_TAG}'
+        bat 'docker rmi ${env.IMAGE_NAME}:${BUILD_NUMBER}'
       }
     }
 
     stage('Deploy HELM chart') {
       steps {
-        bat "helm upgrade --install test ./chart --set image.version=${env.DOCKER_USERNAME}:${env.IMAGE_TAG}"
+        bat "helm upgrade --install test ./chart --set image.version=${env.DOCKER_USERNAME}:${BUILD_NUMBER}"
       }
     }
 
