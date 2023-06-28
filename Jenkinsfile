@@ -30,7 +30,7 @@ pipeline {
       }
     }
 
-   stage('Run backend') {
+    stage('Run backend') {
       steps {
         script {
           if (isUnix()) {
@@ -58,8 +58,33 @@ pipeline {
       steps {
         script {
           def imageName = env.IMAGE_NAME
+          def imageTag = env.BUILD_NUMBER
 
-          bat "docker build -t ${imageName}  ."
+          def taggedImage = "${imageName}:${imageTag}"
+
+          bat "docker build -t ${taggedImage} ."
+
+          // Tag the image with the latest tag
+          bat "docker tag ${taggedImage} ${imageName}:latest"
+        }
+      }
+    }
+
+    stage('Push Docker image') {
+      steps {
+        script {
+          // Read the Docker Hub credentials from the .env file
+          def dockerHubUsername = readFile('.env').readLines().find { it.startsWith('DOCKER_USERNAME=') }?.substring('DOCKER_USERNAME='.length())
+          def dockerHubPassword = readFile('.env').readLines().find { it.startsWith('DOCKER_PASSWORD=') }?.substring('DOCKER_PASSWORD='.length())
+
+          // Read the image name from the .env file
+          def imageName = readFile('.env').readLines().find { it.startsWith('IMAGE_NAME=') }?.substring('IMAGE_NAME='.length())
+
+          // Login to Docker Hub and push the image
+          withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+            bat "docker login -u ${dockerHubUsername} -p ${dockerHubPassword}"
+            bat "docker push ${dockerHubUsername}/${imageName}"
+          }
         }
       }
     }
@@ -91,7 +116,7 @@ pipeline {
 
     stage('Deploy HELM chart') {
       steps {
-        bat 'helm upgrade --install test ./chart --set image.version={DOCKER_USERNAME}:${BUILD_NUMBER}'
+        bat "helm upgrade --install test ./chart --set image.version=${env.DOCKER_USERNAME}:${BUILD_NUMBER}"
       }
     }
 
@@ -114,5 +139,3 @@ pipeline {
     }
   }
 }
-
-
