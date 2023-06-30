@@ -58,7 +58,6 @@ pipeline {
       steps {
         script {
           def imageName = env.IMAGE_NAME
-
           bat "docker build -t ${imageName}  ."
         }
       }
