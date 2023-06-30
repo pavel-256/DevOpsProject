@@ -68,6 +68,11 @@ pipeline {
     stage('Push Docker image') {
       steps {
         script {
+          def imageName = env.IMAGE_NAME
+          def imageTag = env.IMAGE_TAG
+          def taggedImage = "${imageName}:${imageTag}"
+          
+           bat "docker tag taggedImage ${dockerHubUsername}/${taggedImage} "
             bat "docker push ${dockerHubUsername}/${taggedImage}"
           }
         }
