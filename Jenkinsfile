@@ -64,26 +64,6 @@ pipeline {
       }
     }
 
-    stage('Push Docker image') {
-      steps {
-        script {
-          // Read the Docker Hub credentials from the .env file
-          def dockerHubUsername = readFile('.env').readLines().find { it.startsWith('DOCKER_USERNAME=') }?.substring('DOCKER_USERNAME='.length())
-          def dockerHubPassword = readFile('.env').readLines().find { it.startsWith('DOCKER_PASSWORD=') }?.substring('DOCKER_PASSWORD='.length())
-
-          // Tag the image with the build number
-          def taggedImage = "${env.IMAGE_NAME}:${BUILD_NUMBER}"
-
-          // Login to Docker Hub and push the image
-          withCredentials([string(credentialsId: 'docker-hub-password', variable: 'DOCKER_PASSWORD')]) {
-            bat "echo %DOCKER_PASSWORD% | docker login --username ${dockerHubUsername} --password-stdin"
-            bat "docker tag ${imageName} ${dockerHubUsername}/${taggedImage}"
-            bat "docker push ${dockerHubUsername}/${taggedImage}"
-          }
-        }
-      }
-    }
-
     stage('Set compose image version') {
       steps {
         bat 'echo IMAGE_TAG=${BUILD_NUMBER} > .env'
@@ -92,7 +72,7 @@ pipeline {
 
     stage('Run docker-compose up') {
       steps {
-        bat 'docker-compose up -d'
+     bat 'docker-compose -f docker-compose.yml up -d --build'
       }
     }
 
@@ -109,11 +89,35 @@ pipeline {
       }
     }
 
-    stage('Deploy HELM chart') {
-      steps {
-        bat "helm upgrade --install test ./chart --set image.version=${env.DOCKER_USERNAME}:${BUILD_NUMBER}"
-      }
-    }
+  stage('Deploy Helm Chart')
+        {
+            steps
+            {
+                script
+                {
+                    def isSuccess = false
+
+                    try
+                    {
+                        bat 'helm install flaskchart flaskchart'
+                        bat "helm upgrade --install flaskchart flaskchart --set image.version=${imageTag}"
+                        bat "sed -i 's/version: \"[0-9]*\"/version: ${imageTag}/' flaskchart/values.yaml"
+                        bat 'helm upgrade --install flaskchart flaskchart -f flaskchart/values.yaml'
+
+                        isSuccess = true
+                    }
+                    catch (Exception e)
+                    {
+                        isSuccess = false
+                        echo "Deploy Helm Chart Error: ${e.getMessage()}"
+                    }
+                    finally
+                    {
+                        HELM_CHART_DEPLOYED_OK = isSuccess
+                    }
+                }
+            }
+        }
 
     stage('Write service URL into k8s_url.txt') {
       steps {
