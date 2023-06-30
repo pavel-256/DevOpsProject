@@ -58,9 +58,8 @@ pipeline {
       steps {
         script {
           def imageName = env.IMAGE_NAME
-          def imageTag = env.IMAGE_TAG
 
-          bat "docker build -t ${imageName}:${imageTag} ."
+          bat "docker build -t ${imageName}  ."
         }
       }
     }
@@ -68,18 +67,17 @@ pipeline {
     stage('Push Docker image') {
       steps {
         script {
-          def dockerHubUsername = env.DOCKER_USERNAME
-          def dockerHubPassword = env.DOCKER_PASSWORD
-          def imageName = env.IMAGE_NAME
-          def imageTag = env.IMAGE_TAG
+          // Read the Docker Hub credentials from the .env file
+          def dockerHubUsername = readFile('.env').readLines().find { it.startsWith('DOCKER_USERNAME=') }?.substring('DOCKER_USERNAME='.length())
+          def dockerHubPassword = readFile('.env').readLines().find { it.startsWith('DOCKER_PASSWORD=') }?.substring('DOCKER_PASSWORD='.length())
 
-          // Tag the image with the specified tag
-          def taggedImage = "${imageName}:${imageTag}"
+          // Tag the image with the build number
+          def taggedImage = "${env.IMAGE_NAME}:${BUILD_NUMBER}"
 
           // Login to Docker Hub and push the image
-          withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-            bat "echo ${dockerHubPassword.replaceAll('[&|<>]', '^$0')} | docker login --username ${dockerHubUsername} --password-stdin"
-            bat "docker tag taggedImage ${dockerHubUsername}/${taggedImage} "
+          withCredentials([string(credentialsId: 'docker-hub-password', variable: 'DOCKER_PASSWORD')]) {
+            bat "echo %DOCKER_PASSWORD% | docker login --username ${dockerHubUsername} --password-stdin"
+            bat "docker tag ${imageName} ${dockerHubUsername}/${taggedImage}"
             bat "docker push ${dockerHubUsername}/${taggedImage}"
           }
         }
@@ -88,7 +86,7 @@ pipeline {
 
     stage('Set compose image version') {
       steps {
-        bat "echo IMAGE_TAG=${env.IMAGE_TAG} > .env"
+        bat 'echo IMAGE_TAG=${BUILD_NUMBER} > .env'
       }
     }
 
@@ -107,13 +105,13 @@ pipeline {
     stage('Clean compose environment') {
       steps {
         bat 'docker-compose down'
-        bat "docker rmi ${env.IMAGE_NAME}:${env.IMAGE_TAG}"
+        bat 'docker rmi ${env.IMAGE_NAME}:${BUILD_NUMBER}'
       }
     }
 
     stage('Deploy HELM chart') {
       steps {
-        bat "helm upgrade --install test ./chart --set image.version=${env.DOCKER_USERNAME}:${env.IMAGE_TAG}"
+        bat "helm upgrade --install test ./chart --set image.version=${env.DOCKER_USERNAME}:${BUILD_NUMBER}"
       }
     }
 
