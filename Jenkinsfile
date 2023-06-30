@@ -78,7 +78,7 @@ pipeline {
 
           // Login to Docker Hub and push the image
           withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-            bat "docker login -u ${dockerHubUsername} -p ${dockerHubPassword}"
+            bat "echo ${dockerHubPassword} | docker login --username ${dockerHubUsername} --password-stdin"
             bat "docker tag taggedImage ${dockerHubUsername}/${taggedImage} "
             bat "docker push ${dockerHubUsername}/${taggedImage}"
           }
