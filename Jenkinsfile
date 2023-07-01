@@ -60,7 +60,7 @@ pipeline {
           def imageName = env.IMAGE_NAME
           def imageTag = env.IMAGE_TAG
 
-          bat "docker build -t ${imageName}:${imageTag} ."
+          bat "docker build -t ${imageName} ."
         }
       }
     }
@@ -79,7 +79,7 @@ pipeline {
           }
         }
       }
-      
+
     stage('Set compose image version') {
       steps {
         bat "echo IMAGE_TAG=${env.IMAGE_TAG} > .env"
