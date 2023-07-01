@@ -48,11 +48,11 @@ pipeline {
       }
     }
 
-    stage('Run clean environment') {
-      steps {
-        bat 'py clean_environment.py'
-      }
-    }
+//     stage('Run clean environment') {
+//       steps {
+//         bat 'py clean_environment.py'
+//       }
+//     }
 
     stage('Build Docker image') {
       steps {
