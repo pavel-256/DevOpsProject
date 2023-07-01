@@ -75,7 +75,7 @@ pipeline {
 
           // Tag the image with the specified tag
           def taggedImage = "${imageName}:${imageTag}"
-            bat "docker push ${dockerHubUsername}/${imageName}"
+            bat "docker push ${imageName}"
           }
         }
       }
