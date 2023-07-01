@@ -79,8 +79,7 @@ pipeline {
           }
         }
       }
-    }
-
+      
     stage('Set compose image version') {
       steps {
         bat "echo IMAGE_TAG=${env.IMAGE_TAG} > .env"
