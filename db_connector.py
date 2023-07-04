@@ -9,7 +9,8 @@ dbColumns = 'user_name,user_id,creation_date'
 users = {}
 
 # Establishing a connection to the database
-conn = pymysql.connect(host='localhost', user='root', passwd='', db=schema_name)
+conn = pymysql.connect(host='host.docker.internal', user='root', passwd='', db=schema_name)
+
 conn.autocommit(True)
 
 

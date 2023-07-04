@@ -65,20 +65,6 @@ pipeline {
       }
     }
 
-    stage('Push Docker image') {
-      steps {
-        script {
-          def dockerHubUsername = env.DOCKER_USERNAME
-          def dockerHubPassword = env.DOCKER_PASSWORD
-          def imageName = env.IMAGE_NAME
-          def imageTag = env.IMAGE_TAG
-
-          // Tag the image with the specified tag
-          def taggedImage = "${imageName}:${imageTag}"
-            bat "docker push pavel256/amazing:1.0.0"
-          }
-        }
-      }
     stage('Set compose image version') {
       steps {
         bat "echo IMAGE_TAG=${env.IMAGE_TAG} > .env"
@@ -87,7 +73,7 @@ pipeline {
 
     stage('Run docker-compose up') {
       steps {
-        bat 'docker-compose up -d'
+        bat 'docker-compose -f docker-compose.yml up -d --build'
       }
     }
 
@@ -100,19 +86,22 @@ pipeline {
     stage('Clean compose environment') {
       steps {
         bat 'docker-compose down'
-        bat "docker rmi ${env.IMAGE_NAME}:${env.IMAGE_TAG}"
+        bat "docker image rmi ${env.IMAGE_NAME}:${env.IMAGE_TAG}"
       }
     }
 
     stage('Deploy HELM chart') {
       steps {
-        bat "helm upgrade --install test ./chart --set image.version=${env.DOCKER_USERNAME}:${env.IMAGE_TAG}"
+          bat 'helm install flaskchart flaskchart'
+          bat "helm upgrade --install flaskchart flaskchart --set image.version=${imageTag}"
+          bat "sed -i 's/version: \"[0-9]*\"/version: ${imageTag}/' flaskchart/values.yaml"
+          bat 'helm upgrade --install flaskchart flaskchart -f flaskchart/values.yaml'
       }
     }
 
     stage('Write service URL into k8s_url.txt') {
       steps {
-        bat 'minikube service hello-python-service --url > k8s_url.txt'
+        bat 'minikube service flaskchart --url >k8s_url.txt'
       }
     }
 
@@ -124,7 +113,7 @@ pipeline {
 
     stage('Clean HELM environment') {
       steps {
-        bat 'helm delete test --purge'
+        bat 'helm delete flaskchart '
       }
     }
   }

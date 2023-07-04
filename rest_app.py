@@ -1,9 +1,7 @@
-import signal
 from flask import Flask, request
-
 from db_connector import get_request, post_request, delete_request, put_request
 import os
-from datetime import date
+import signal
 
 # local users storage
 users = {}
@@ -62,4 +60,4 @@ def stop_server():
         return 'Server failed to stop'
 
 
-app.run(host='127.0.0.1', debug=True, port=5000)
+app.run(host='0.0.0.0', debug=True, port=5000)
